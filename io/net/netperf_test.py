@@ -33,6 +33,7 @@ from avocado.utils import process
 from avocado.utils.genio import read_file
 from avocado.utils.network.interfaces import NetworkInterface
 from avocado.utils.network.hosts import LocalHost, RemoteHost
+from avocado.utils.network.exceptions import NWException
 from avocado.utils.ssh import Session
 
 
@@ -108,6 +109,20 @@ class Netperf(Test):
                                             password=self.peer_password)
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
+        self.host_rx = self.params.get("rx", default=self.networkinterface.get_rx_queues())
+        self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
+        self.host_tx = self.params.get("tx", default=self.networkinterface.get_tx_queues())
+        self.peer_tx = self.params.get("tx", default=self.peer_networkinterface.get_tx_queues())
+        try:
+            self.networkinterface.set_rx_queues(int(self.host_rx))
+            self.networkinterface.set_tx_queues(int(self.host_tx))
+        except NWException:
+            self.cancel("Failed to set rx/tx in host")
+        try:
+            self.peer_networkinterface.set_rx_queues(int(self.peer_rx))
+            self.peer_networkinterface.set_tx_queues(int(self.peer_tx))
+        except NWException:
+            self.cancel("Failed to set rx/tx in host")
         if self.peer_networkinterface.set_mtu(self.mtu) is not None:
             self.cancel("Failed to set mtu in peer")
         if self.networkinterface.set_mtu(self.mtu) is not None:

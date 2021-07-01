@@ -1,0 +1,71 @@
+interface: "eth2"
+peer_ip: "9.47.87.72"
+peer_public_ip: "9.47.87.72"
+host_ip: "9.40.194.173"
+netmask: "255.255.240.0"
+peer_user: "testr"
+peer_password: "passw0rd"
+TIMEOUT: "720"
+NETSERVER_RUN: 1
+EXPECTED_THROUGHPUT: 90
+duration: 120
+minimum_iterations: 1
+maximum_iterations: 5
+netperf_download: "https://github.com/HewlettPackard/netperf/archive/netperf-2.7.0.zip"
+option: !mux
+    generic:
+        option: ''
+    tcp_stream:
+        option: 'TCP_STREAM -- -m 63000'
+    udp_stream:
+        option: 'UDP_STREAM -- -m 63000'
+    tcp_rr:
+        option: 'TCP_RR'
+    udp_rr:
+        option: 'UDP_RR'
+mtu: !mux
+    1500:
+        mtu: "1500"
+    2000:
+        mtu: "2000"
+    3000:
+        mtu: "3000"
+    4000:
+        mtu: "4000"
+    5000:
+        mtu: "5000"
+    6000:
+        mtu: "6000"
+    7000:
+        mtu: "7000"
+    8000:
+        mtu: "8000"
+    9000:
+        mtu: "9000"
+rx: !mux
+    1:
+      rx: "1"
+    2:
+      rx: "2"
+    4:
+      rx: "4"
+    8:
+      rx: "8"
+    16:
+      rx: "16"
+    32:
+      rx: "32"
+tx: !mux
+    1:
+      tx: "1"
+    2:
+      tx: "2"
+    4:
+      tx: "4"
+    8:
+      tx: "8"
+    16:
+      tx: "16"
+    32:
+      tx: "32"
+    
