@@ -117,7 +117,7 @@ class Netperf(Test):
         print(getattr(self.networkinterface, "get_GSO")())
         for o in offloads_to_process:
             try:
-                a = getattr(self.networkinterface, "get_GSO")
+                a = getattr(self.networkinterface, "get_%s" % o)
                 b = a()
                 c = self.params.get(o, default=b)
                 d = setattr(self, "host_%s" % o, c)
