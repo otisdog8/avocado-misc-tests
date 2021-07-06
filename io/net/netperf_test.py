@@ -111,21 +111,17 @@ class Netperf(Test):
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
         offloads_to_process = ["GSO", "TSO", "UFO", "LRO", "GRO"]
-        print(self.networkinterface)
-        print(type(self.networkinterface))
-        print(getattr(self.networkinterface, "get_GSO"))
-        print(getattr(self.networkinterface, "get_GSO")())
         for o in offloads_to_process:
             try:
-                a = getattr(self.networkinterface, "get_%s" % o)
-                b = a()
-                c = self.params.get(o, default=b)
-                d = setattr(self, "host_%s" % o, c)
                 setattr(self, "host_%s" % o, self.params.get(o, default=getattr(self.networkinterface, "get_%s" % o)()))
                 getattr(self.networkinterface, "set_%s" % o)(getattr(self, "host_%s" % o))
             except NWException:
                 print("Failed to get and/or set %s in host" % o)
             try:
+                a = getattr(self.peer_interface, "get_%s" % o)
+                b = a()
+                c = self.params.get(o, default=b)
+                d = setattr(self, "peer_%s" % o, c)
                 setattr(self, "peer_%s" % o, self.params.get(o, default=getattr(self.peer_interface, "get_%s" % o)()))
                 getattr(self.peer_interface, "set_%s" % o)(getattr(self, "peer_%s" % o))
             except NWException:
