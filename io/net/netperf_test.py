@@ -111,6 +111,10 @@ class Netperf(Test):
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
         offloads_to_process = ["GSO", "TSO", "UFO", "LRO", "GRO"]
+        print(self.networkinterface)
+        print(type(self.networkinterface))
+        print(getattr(self.networkinterface, "get_GSO"))
+        print(getattr(self.networkinterface, "get_GSO")())
         for o in offloads_to_process:
             try:
                 setattr(self, "host_%s" % o, self.params.get(o, default=getattr(self.networkinterface, "get_%s" % o)()))
