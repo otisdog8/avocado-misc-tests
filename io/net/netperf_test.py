@@ -127,17 +127,17 @@ class Netperf(Test):
             self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
             self.host_tx = self.params.get("tx", default=self.networkinterface.get_tx_queues())
             self.peer_tx = self.params.get("tx", default=self.peer_networkinterface.get_tx_queues())
-        except NWException:
+        except Exception:
             pass # This code failing is normal so we catch the exception
         try:
             self.networkinterface.set_rx_queues(int(self.host_rx))
             self.networkinterface.set_tx_queues(int(self.host_tx))
-        except NWException:
+        except Exception:
             pass
         try:
             self.peer_networkinterface.set_rx_queues(int(self.peer_rx))
             self.peer_networkinterface.set_tx_queues(int(self.peer_tx))
-        except NWException:
+        except Exception:
             pass
         if self.peer_networkinterface.set_mtu(self.mtu) is not None:
             self.cancel("Failed to set mtu in peer")
