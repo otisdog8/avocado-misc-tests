@@ -117,6 +117,10 @@ class Netperf(Test):
         print(getattr(self.networkinterface, "get_GSO")())
         for o in offloads_to_process:
             try:
+                a = getattr(self.networkinterface, "get_GSO")
+                b = a()
+                c = self.params.get(o, default=b)
+                d = setattr(self, "host_%s" % o, c)
                 setattr(self, "host_%s" % o, self.params.get(o, default=getattr(self.networkinterface, "get_%s" % o)()))
                 getattr(self.networkinterface, "set_%s" % o)(getattr(self, "host_%s" % o))
             except NWException:
