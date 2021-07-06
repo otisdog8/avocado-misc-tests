@@ -33,6 +33,7 @@ from avocado.utils import process
 from avocado.utils.genio import read_file
 from avocado.utils.network.interfaces import NetworkInterface
 from avocado.utils.network.hosts import LocalHost, RemoteHost
+from avocado.utils.network.exceptions import NWException
 from avocado.utils.ssh import Session
 
 
@@ -98,6 +99,27 @@ class Netperf(Test):
                                             password=self.peer_password)
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
+        offloads_to_process = ["GSO", "TSO", "UFO", "LRO", "GRO"]
+        for o in offloads_to_process:
+            try:
+                # Essentially iterates through all the offloads, sets self.host_$ 
+                # where $ is specific offload, and then applies that to the network 
+                # interface. This is written weirdly so that it can iterate through 
+                # all the different offloads instead of having individual lines of 
+                # code for each
+                setattr(self, "host_%s" % o, self.params.get(
+                    o, default=getattr(self.networkinterface, "get_%s" % o)()))
+                getattr(self.networkinterface, "set_%s" %
+                        o)(getattr(self, "host_%s" % o))
+            except NWException:
+                print("Failed to get and/or set %s in host" % o)
+            try:
+                setattr(self, "peer_%s" % o, self.params.get(
+                    o, default=getattr(self.peer_networkinterface, "get_%s" % o)()))
+                getattr(self.peer_networkinterface, "set_%s" %
+                        o)(getattr(self, "peer_%s" % o))
+            except NWException:
+                print("Failed to get and/or set %s in peer" % o)
         if self.peer_networkinterface.set_mtu(self.mtu) is not None:
             self.cancel("Failed to set mtu in peer")
         if self.networkinterface.set_mtu(self.mtu) is not None:
