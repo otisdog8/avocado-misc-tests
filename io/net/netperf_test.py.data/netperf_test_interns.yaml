@@ -68,4 +68,28 @@ tx: !mux
       tx: "16"
     32:
       tx: "32"
-    
+GSO: !mux
+    on:
+      GSO: "on"
+    off:
+      GSO: "off"
+TSO: !mux
+    on:
+      TSO: "on"
+    off:
+      TSO: "off"
+UFO: !mux
+    on:
+      UFO: "on"
+    off:
+      UFO: "off"
+GRO: !mux
+    on:
+      GRO: "on"
+    off:
+      GRO: "off"
+LRO: !mux
+    on:
+      LRO: "on"
+    off:
+      LRO: "off"

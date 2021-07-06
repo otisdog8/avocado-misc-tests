@@ -23,6 +23,7 @@ unidirectional throughput, and end-to-end latency.
 
 
 import os
+from urllib.parse import ParseResultBytes
 import netifaces
 from avocado import Test
 from avocado.utils.software_manager import SoftwareManager
@@ -113,6 +114,29 @@ class Netperf(Test):
         self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
         self.host_tx = self.params.get("tx", default=self.networkinterface.get_tx_queues())
         self.peer_tx = self.params.get("tx", default=self.peer_networkinterface.get_tx_queues())
+        self.host_GSO = self.params.get("GSO", default=self.networkinterface.get_GSO())
+        self.peer_GSO = self.params.get("GSO", default=self.peer_networkinterface.get_GSO())
+        self.host_TSO = self.params.get("TSO", default=self.networkinterface.get_TSO())
+        self.peer_TSO = self.params.get("TSO", default=self.peer_networkinterface.get_TSO())
+        self.host_UFO = self.params.get("UFO", default=self.networkinterface.get_UFO())
+        self.peer_UFO = self.params.get("UFO", default=self.peer_networkinterface.get_UFO())
+        self.host_LRO = self.params.get("LRO", default=self.networkinterface.get_LRO())
+        self.peer_LRO = self.params.get("LRO", default=self.peer_networkinterface.get_LRO())
+        self.host_GRO = self.params.get("GRO", default=self.networkinterface.get_GRO())
+        self.peer_GRO = self.params.get("GRO", default=self.peer_networkinterface.get_GRO())
+        try:
+            self.networkinterface.set_GSO(self.host_GSO)
+            self.peer_networkinterface.set_GSO(self.peer_GSO)
+            self.networkinterface.set_TSO(self.host_TSO)
+            self.peer_networkinterface.set_TSO(self.peer_TSO)
+            self.networkinterface.set_UFO(self.host_UFO)
+            self.peer_networkinterface.set_UFO(self.peer_UFO)
+            self.networkinterface.set_LRO(self.host_LRO)
+            self.peer_networkinterface.set_LRO(self.peer_LRO)
+            self.networkinterface.set_GRO(self.host_GRO)
+            self.peer_networkinterface.set_GRO(self.peer_GRO)
+        except NWException:
+            pass # This code failing is normal so we catch the exception
         try:
             self.networkinterface.set_rx_queues(int(self.host_rx))
             self.networkinterface.set_tx_queues(int(self.host_tx))
