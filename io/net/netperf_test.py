@@ -110,30 +110,18 @@ class Netperf(Test):
                                             password=self.peer_password)
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
-
-        self.host_GSO = self.params.get("GSO", default=self.networkinterface.get_GSO())
-        self.peer_GSO = self.params.get("GSO", default=self.peer_networkinterface.get_GSO())
-        self.host_TSO = self.params.get("TSO", default=self.networkinterface.get_TSO())
-        self.peer_TSO = self.params.get("TSO", default=self.peer_networkinterface.get_TSO())
-        self.host_UFO = self.params.get("UFO", default=self.networkinterface.get_UFO())
-        self.peer_UFO = self.params.get("UFO", default=self.peer_networkinterface.get_UFO())
-        self.host_LRO = self.params.get("LRO", default=self.networkinterface.get_LRO())
-        self.peer_LRO = self.params.get("LRO", default=self.peer_networkinterface.get_LRO())
-        self.host_GRO = self.params.get("GRO", default=self.networkinterface.get_GRO())
-        self.peer_GRO = self.params.get("GRO", default=self.peer_networkinterface.get_GRO())
-        try:
-            self.networkinterface.set_GSO(self.host_GSO)
-            self.peer_networkinterface.set_GSO(self.peer_GSO)
-            self.networkinterface.set_TSO(self.host_TSO)
-            self.peer_networkinterface.set_TSO(self.peer_TSO)
-            self.networkinterface.set_UFO(self.host_UFO)
-            self.peer_networkinterface.set_UFO(self.peer_UFO)
-            self.networkinterface.set_LRO(self.host_LRO)
-            self.peer_networkinterface.set_LRO(self.peer_LRO)
-            self.networkinterface.set_GRO(self.host_GRO)
-            self.peer_networkinterface.set_GRO(self.peer_GRO)
-        except NWException:
-            pass # This code failing is normal so we catch the exception
+        offloads_to_process = ["GSO", "TSO", "UFO", "LRO", "GRO"]
+        for o in offloads_to_process:
+            try:
+                setattr(self, "host_%s" % o, self.params.get(o, default=getattr(self.networkinterface, "get_%s" % o)))
+                getattr(self.networkinterface, "set_%s" % o)(getattr(self, "host_%s" % o))
+            except NWException:
+                print("Failed to get and/or set %s in host" % o)
+            try:
+                setattr(self, "peer_%s" % o, self.params.get(o, default=getattr(self.peer_interface, "get_%s" % o)))
+                getattr(self.peer_interface, "set_%s" % o)(getattr(self, "peer_%s" % o))
+            except NWException:
+                print("Failed to get and/or set %s in peer" % o)
         try:
             self.host_rx = self.params.get("rx", default=self.networkinterface.get_rx_queues())
             self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
@@ -145,12 +133,12 @@ class Netperf(Test):
             self.networkinterface.set_rx_queues(int(self.host_rx))
             self.networkinterface.set_tx_queues(int(self.host_tx))
         except NWException:
-            self.cancel("Failed to set rx/tx in host")
+            pass
         try:
             self.peer_networkinterface.set_rx_queues(int(self.peer_rx))
             self.peer_networkinterface.set_tx_queues(int(self.peer_tx))
         except NWException:
-            self.cancel("Failed to set rx/tx in host")
+            pass
         if self.peer_networkinterface.set_mtu(self.mtu) is not None:
             self.cancel("Failed to set mtu in peer")
         if self.networkinterface.set_mtu(self.mtu) is not None:
