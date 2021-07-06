@@ -110,10 +110,7 @@ class Netperf(Test):
                                             password=self.peer_password)
         self.peer_public_networkinterface = NetworkInterface(self.peer_interface,
                                                              self.remotehost_public)
-        self.host_rx = self.params.get("rx", default=self.networkinterface.get_rx_queues())
-        self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
-        self.host_tx = self.params.get("tx", default=self.networkinterface.get_tx_queues())
-        self.peer_tx = self.params.get("tx", default=self.peer_networkinterface.get_tx_queues())
+
         self.host_GSO = self.params.get("GSO", default=self.networkinterface.get_GSO())
         self.peer_GSO = self.params.get("GSO", default=self.peer_networkinterface.get_GSO())
         self.host_TSO = self.params.get("TSO", default=self.networkinterface.get_TSO())
@@ -135,6 +132,13 @@ class Netperf(Test):
             self.peer_networkinterface.set_LRO(self.peer_LRO)
             self.networkinterface.set_GRO(self.host_GRO)
             self.peer_networkinterface.set_GRO(self.peer_GRO)
+        except NWException:
+            pass # This code failing is normal so we catch the exception
+        try:
+            self.host_rx = self.params.get("rx", default=self.networkinterface.get_rx_queues())
+            self.peer_rx = self.params.get("rx", default=self.peer_networkinterface.get_rx_queues())
+            self.host_tx = self.params.get("tx", default=self.networkinterface.get_tx_queues())
+            self.peer_tx = self.params.get("tx", default=self.peer_networkinterface.get_tx_queues())
         except NWException:
             pass # This code failing is normal so we catch the exception
         try:
