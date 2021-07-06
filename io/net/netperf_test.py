@@ -33,6 +33,7 @@ from avocado.utils import process
 from avocado.utils.genio import read_file
 from avocado.utils.network.interfaces import NetworkInterface
 from avocado.utils.network.hosts import LocalHost, RemoteHost
+from avocado.utils.network.exceptions import NWException
 from avocado.utils.ssh import Session
 
 
@@ -78,13 +79,23 @@ class Netperf(Test):
         else:
             pkgs.append('openssh-clients')
         for pkg in pkgs:
-            if not smm.check_installed(pkg) and not smm.install(pkg):
-                self.cancel("%s package is need to test" % pkg)
-            cmd = "%s install %s" % (smm.backend.base_command, pkg)
+            if not smm.check_installed(pkg):
+                if not smm.install(pkg):
+                    self.cancel("%s package is need to test" % pkg)
+            # Checks if the package is installed and only installs if it isn't installed
+            if detected_distro.name == "rhel" or detected_distro.name == "SuSE":
+                cmd = "rpm -q %s" % pkg
+            elif detected_distro.name == "Ubuntu":
+                cmd = "dpkg -s %s" % pkg
+            else:
+                cmd = "which %s" % pkg
             output = self.session.cmd(cmd)
             if not output.exit_status == 0:
-                self.cancel("unable to install the package %s on peer machine "
-                            % pkg)
+                cmd = "%s install %s" % (smm.backend.base_command, pkg)
+                output = self.session.cmd(cmd, sudo=True)
+                if not output.exit_status == 0:
+                    self.cancel("unable to install the package %s on peer machine "
+                                % pkg)
         if self.peer_ip == "":
             self.cancel("%s peer machine is not available" % self.peer_ip)
         self.timeout = self.params.get("TIMEOUT", default="600")
